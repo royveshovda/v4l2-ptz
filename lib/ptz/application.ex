@@ -13,9 +13,10 @@ defmodule Ptz.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Ptz.PubSub},
       # Start the Endpoint (http/https)
-      PtzWeb.Endpoint
+      PtzWeb.Endpoint,
       # Start a worker by calling: Ptz.Worker.start_link(arg)
       # {Ptz.Worker, arg}
+      Ptz.Positions
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
