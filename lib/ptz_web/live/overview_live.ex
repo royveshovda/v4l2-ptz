@@ -10,24 +10,21 @@ defmodule PtzWeb.OverviewLive do
       Logger.debug("Web connected")
     end
 
+    positions = Ptz.Positions.get_positions()
+
+    Logger.debug("Positions: #{inspect(positions)}")
+
     socket =
       socket
-      #|> assign(deployments: [], nodes: [], pods_metrics: [])
+      |> assign(positions: positions)
     {:ok, socket}
   end
 
   @impl true
-  def handle_event("go_to_position", %{"position" => position}, socket) do
-    Logger.info("Clicked position: #{position}")
+  def handle_event("go_to_position", %{"position" => position, "pan" => pan, "tilt" => tilt, "zoom" => zoom}, socket) do
+    Logger.info("Clicked position: #{position} pan: #{pan} tilt: #{tilt} zoom: #{zoom}")
 
-    case position do
-      "center" -> Ptz.Cam.move(15000, -45000, 100)
-      "rodecaster" -> Ptz.Cam.move(220000, -162000, 350)
-      "ultimaker" -> Ptz.Cam.move(-180000, 15000, 300)
-      "outside" -> Ptz.Cam.move(-270000, 55000, 400)
-      _ -> Logger.error("Unknown position: #{position}")
-    end
-
+    Ptz.Cam.move(pan, tilt, zoom)
 
     {:noreply, socket}
   end
@@ -39,10 +36,9 @@ defmodule PtzWeb.OverviewLive do
         <h1>Positions:</h1>
         <div class="cards">
           <article class="card">
-            <button class="card-button" phx-click="go_to_position" phx-value-position="center">Center</button>
-            <button class="card-button" phx-click="go_to_position" phx-value-position="rodecaster">Rødecaster</button>
-            <button class="card-button" phx-click="go_to_position" phx-value-position="ultimaker">Ultimaker</button>
-            <button class="card-button" phx-click="go_to_position" phx-value-position="outside">Outside</button>
+            <%= for position <- @positions do %>
+              <button class="card-button" phx-click="go_to_position" phx-value-pan={position.pan} phx-value-tilt={position.tilt} phx-value-zoom={position.zoom} phx-value-position={position.name} ><%= position.name %></button>
+            <% end %>
           </article>
         </div>
       </section>
